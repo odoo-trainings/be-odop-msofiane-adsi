@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Assignment 4.01: the smart button on the contact form.
+
+        An inheriting view does not copy the original. inherit_id names the
+        view to change, and the arch only holds the changes, each one located
+        with an xpath.
+
+        The button box is an empty div in the standard partner form, left
+        there for modules to fill. position="inside" appends to it without
+        disturbing whatever another module has already put there.
+    -->
+
+    <record id="view_partner_form_inherit_kawiil_financing" model="ir.ui.view">
+        <field name="name">res.partner.view.form.inherit.kawiil_financing</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <!-- oe_stat_button makes it a smart button, statinfo draws
+                     the number above its label. "Loans" because the field's
+                     own label is long for a small button, as core does with
+                     "Sales" on sale_order_count. -->
+                <button name="action_view_loan_applications" type="object"
+                        class="oe_stat_button" icon="fa-money">
+                    <field name="loan_application_count" widget="statinfo" string="Loans"/>
+                </button>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

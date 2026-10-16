@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Assignment 2.06: the menu hierarchy.
+
+        Three levels, each one the parent of the next:
+
+            Financing                  the app, on the main dashboard
+            Motorcycle Financing       a heading in the app's top bar
+            Loan Applications          the item that opens your action
+
+        A menuitem with no action is just a container. Only the deepest one
+        carries an action, and clicking it is what opens the list.
+    -->
+
+    <!-- No parent, so this is the app itself. The manifest icon only shows
+         in the Apps list, the dashboard takes its icon from web_icon.
+
+         Assignment 2.07 added groups: only Financing users get the app, and
+         the items under it go with it. -->
+    <menuitem id="kawiil_financing_menu_root"
+              name="Financing"
+              web_icon="kawiil_financing,static/description/icon.png"
+              groups="group_kawiil_financing_user"
+              sequence="10"/>
+
+    <menuitem id="kawiil_financing_menu_motorcycle"
+              name="Motorcycle Financing"
+              parent="kawiil_financing_menu_root"
+              sequence="10"/>
+
+    <!-- The action lives in loan_application_views.xml, which the manifest
+         loads first so this reference resolves. -->
+    <menuitem id="loan_application_menu"
+              name="Loan Applications"
+              parent="kawiil_financing_menu_motorcycle"
+              action="loan_application_action"
+              sequence="10"/>
+
+    <!-- Assignment 2.09. Anyone outside the Financing Admin group never
+         gets this rendered, so a regular user has no hint the
+         configuration screens exist. The items under it inherit that, so
+         it is not repeated on them. -->
+    <menuitem id="kawiil_financing_menu_config"
+              name="Configuration"
+              parent="kawiil_financing_menu_root"
+              groups="group_kawiil_financing_admin"
+              sequence="90"/>
+
+    <menuitem id="loan_application_tag_menu"
+              name="Tags"
+              parent="kawiil_financing_menu_config"
+              action="loan_application_tag_action"
+              sequence="10"/>
+
+    <menuitem id="loan_application_document_type_menu"
+              name="Document Types"
+              parent="kawiil_financing_menu_config"
+              action="loan_application_document_type_action"
+              sequence="20"/>
+
+</odoo>

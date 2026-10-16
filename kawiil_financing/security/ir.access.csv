@@ -1,0 +1,10 @@
+id,name,active,model_id:id,group_id:id,operation,domain,note
+access_loan_application_user_read,loan.application.user.read,True,model_loan_application,group_kawiil_financing_user,r,,"Users see every application, approved ones included."
+access_loan_application_user_edit,loan.application.user.edit,True,model_loan_application,group_kawiil_financing_user,cu,"[('state', '!=', 'approved')]","Users create and change applications until they are approved. From then on only admins can change them, and users can never delete one."
+access_loan_application_admin,loan.application.admin,True,model_loan_application,group_kawiil_financing_admin,crud,,"Admins have full access, approved applications included."
+access_loan_application_tag_user,loan.application.tag.user,True,model_loan_application_tag,group_kawiil_financing_user,r,,"Users pick tags on a loan, only admins manage the list."
+access_loan_application_tag_admin,loan.application.tag.admin,True,model_loan_application_tag,group_kawiil_financing_admin,crud,,"Admins manage the tag list."
+access_loan_application_document_type_user,loan.application.document.type.user,True,model_loan_application_document_type,group_kawiil_financing_user,r,,"Users see which documents a loan needs, only admins decide that."
+access_loan_application_document_type_admin,loan.application.document.type.admin,True,model_loan_application_document_type,group_kawiil_financing_admin,crud,,"Admins decide which documents a loan needs."
+access_loan_application_document_user,loan.application.document.user,True,model_loan_application_document,group_kawiil_financing_user,crud,,"Users fill in the compliance checklist of their loans."
+access_loan_application_document_admin,loan.application.document.admin,True,model_loan_application_document,group_kawiil_financing_admin,crud,,"Admins have full access to every checklist."
