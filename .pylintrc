@@ -1,0 +1,33 @@
+# The checks Odoo runs on its own code, taken from
+# odoo/addons/test_lint/tests/test_pylint.py on the 20.0 branch.
+#
+# The three odoo checkers are plugins shipped in that same folder, and
+# raise-unlink-override needs the odoo package to recognise models. Put both
+# on PYTHONPATH before running pylint:
+#   PYTHONPATH=<odoo>:<odoo>/odoo/addons/test_lint/tests pylint --rcfile=.pylintrc <files>
+
+[MAIN]
+persistent=no
+load-plugins=
+    _odoo_checker_sql_injection,
+    _odoo_checker_gettext,
+    _odoo_checker_unlink_override,
+
+[MESSAGES CONTROL]
+disable=all
+enable=
+    used-before-assignment,
+    undefined-variable,
+    eval-used,
+    unreachable,
+    function-redefined,
+    sql-injection,
+    missing-gettext,
+    gettext-variable,
+    gettext-placeholders,
+    gettext-repr,
+    raise-unlink-override,
+
+[REPORTS]
+reports=no
+msg-template={msg} ({msg_id}) at {path}:{line}
