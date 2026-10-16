@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Loan application: action, views and the "Assign to Me" server action.
+
+        Built up across several assignments:
+          2.06  the action, opening Odoo's automatic views
+          2.08  real list, form and search views, replacing those
+          2.09  the tags field and the Compliance Checklist page
+          3.01  the computed amounts and the customer's contact details
+          3.03  the workflow buttons and dates
+          3.04  the "Assign to Me" server action
+          4.02  the chatter
+
+        A view is a record like any other. The layout lives in the arch field
+        as markup, and Odoo picks the highest priority view of each type for a
+        model unless an action names one explicitly.
+
+        XML comments cannot be nested, so the changes later assignments make
+        to the form are not inside it. Each one sits in its own comment right
+        after the form, marked with "!", and says where it goes. Leave those
+        exactly as they are until the assignment they name.
+    -->
+
+    <!-- Assignment 2.06: worked example -->
+    <record id="loan_application_action" model="ir.actions.act_window">
+        <field name="name">Loan Applications</field>
+        <field name="res_model">loan.application</field>
+        <!-- list, not tree: tree was renamed in Odoo 18. -->
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Create your first loan application</p>
+            <p>Track motorcycle financing from the first request to the final decision.</p>
+        </field>
+    </record>
+
+    <!--
+        Assignment 2.08: worked example. Uncomment the record below when you
+        reach 2.08: delete the two comment markers around it, nothing else.
+
+        A Monetary column needs its currency field present to render, but
+        nobody wants to see a column of identical currencies.
+        column_invisible loads it without showing it.
+
+        Bonus exercise: try widget="badge" on state, or a
+        decoration-success="state == 'approved'" attribute, to make the rows
+        carry meaning at a glance.
+    -->
+    <!--
+    <record id="loan_application_view_list" model="ir.ui.view">
+        <field name="name">loan.application.view.list</field>
+        <field name="model">loan.application</field>
+        <field name="arch" type="xml">
+            <list string="Loan Applications">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="loan_amount"/>
+                <field name="currency_id" column_invisible="True"/>
+                <field name="state"/>
+            </list>
+        </field>
+    </record>
+    -->
+
+    <!--
+        Assignment 2.08: worked example, and the answer to "why are my fields
+        stacked vertically". Uncomment the record below when you reach 2.08.
+
+        The nesting is what makes the columns. The outer group opens a column
+        layout; each inner group becomes one column of labels and fields. A
+        single group on its own gives you one column, everything stacked.
+
+        A notebook holds the detail. Anything a user needs at a glance goes on
+        the sheet above it; everything else earns a page.
+
+        Three things worth reading closely as you uncomment it:
+
+          header        the strip above the sheet. A statusbar shows the
+                        workflow as a row of stages instead of a dropdown.
+          oe_title      the large heading area at the top left of a sheet,
+                        where the record's identity goes.
+          cosigner_ids  many2many_tags draws each co-signer as a pill, in the
+                        same column as the customer they stand behind.
+    -->
+    <!--
+    <record id="loan_application_view_form" model="ir.ui.view">
+        <field name="name">loan.application.view.form</field>
+        <field name="model">loan.application</field>
+        <field name="arch" type="xml">
+            <form string="Loan Application">
+                <header>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,sent,approved"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="e.g. LOAN/2026/001"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="partner_id"/>
+                            <field name="cosigner_ids" widget="many2many_tags"/>
+                            <field name="product_id"/>
+                        </group>
+                        <group>
+                            <field name="date_applied"/>
+                            <field name="user_id"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Financials">
+                            <group>
+                                <group>
+                                    <field name="currency_id" invisible="1"/>
+                                    <field name="loan_amount"/>
+                                    <field name="down_payment"/>
+                                </group>
+                                <group>
+                                    <field name="loan_term"/>
+                                    <field name="interest_rate"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Internal Notes">
+                            <field name="notes" placeholder="Add internal notes here..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    -->
+
+    <!--
+        ! Assignment 2.09: leave this commented until you reach 2.09.
+        ! Then make two additions to the form above.
+
+        1. tag_ids, on a line of its own directly above the first <group>.
+           many2many_tags draws the links as coloured pills, and color_field
+           says which field holds the palette index:
+
+               <field name="tag_ids" widget="many2many_tags"
+                      options="{'color_field': 'color'}"
+                      placeholder="Tags..."/>
+
+        2. a page titled "Compliance Checklist", after the Financials page,
+           holding document_ids in an embedded editable list so paperwork can
+           be added without leaving the loan:
+
+               <page string="Compliance Checklist">
+                   <field name="document_ids">
+                       <list editable="bottom">
+                           <field name="type_id"/>
+                           <field name="name"/>
+                           <field name="attachment_id"/>
+                           <field name="state"/>
+                       </list>
+                   </field>
+               </page>
+    -->
+
+    <!--
+        ! Assignment 3.01: leave this commented until you reach 3.01.
+        ! Then make two changes to the form above.
+
+        1. The customer's contact details, straight under partner_id. They are
+           related fields, read-only, filled in the moment a customer is
+           picked:
+
+               <field name="email"/>
+               <field name="phone"/>
+
+        2. The amounts in the Financials page. It replaces the loan_amount and
+           down_payment lines there; delete those then. principal_amount is
+           typed in, loan_amount is worked out from it. widget="monetary"
+           shows the currency symbol, and it needs the invisible currency_id
+           in the same group, which is already there:
+
+               <field name="principal_amount" widget="monetary"/>
+               <field name="down_payment" widget="monetary"/>
+               <field name="loan_amount" widget="monetary"/>
+    -->
+
+    <!--
+        ! Assignment 3.03: leave this commented until you reach 3.03.
+        ! Then make three changes to the form above.
+
+        1. The workflow buttons, in the header before the statusbar. A
+           type="object" button calls the Python method named in name= on the
+           record in the form. invisible takes a Python expression over the
+           record's fields, so each button only shows in the state it starts
+           from. The first one is written out:
+
+               <button name="action_submit" type="object" string="Submit"
+                       class="btn-primary" invisible="state != 'draft'"/>
+
+           Add Approve (action_approve_loan) and Reject (action_reject_loan)
+           the same way, both visible only while state is 'sent'. Give Approve
+           class="btn-primary" and Reject class="btn-secondary".
+
+        2. The decision dates, in the second column under date_applied, each
+           hidden until it has a value:
+
+               <field name="date_approved" invisible="not date_approved"/>
+               <field name="date_rejected" invisible="not date_rejected"/>
+
+        3. Approve and reject buttons on every checklist line, after the state
+           column of the document_ids list. An icon button has no text, so it
+           needs a title for the tooltip and for screen readers:
+
+               <button name="action_approve_document" type="object"
+                       icon="fa-check" title="Approve"/>
+               <button name="action_reject_document" type="object"
+                       icon="fa-times" title="Reject"/>
+
+        Do not use attrs="{'invisible': ...}" from older Odoo versions. It
+        was removed, and the view will not load with it.
+    -->
+
+    <!--
+        ! Assignment 4.02: leave this commented until you reach 4.02.
+        ! Then add the chatter to the form above, straight after </sheet> and
+        ! still inside </form>. Inside the sheet it would be squeezed into the
+        ! form's column; outside, Odoo gives it its own panel:
+
+               <chatter/>
+    -->
+
+    <!--
+        TODO (assignment 2.08): the search view.
+
+        id loan_application_view_search, on loan.application, wrapping a
+        <search> element that holds three kinds of child.
+
+        1. Searchable fields. These are what the box at the top matches when
+           someone types:
+
+               <field name="name"/>
+               <field name="partner_id"/>
+
+        2. Filters, one per shortcut. Each needs a name, a label, and a domain:
+
+               <filter name="filter_draft" string="Draft"
+                       domain="[('state', '=', 'draft')]"/>
+
+           Add one per state: Draft, Sent, Approved and Rejected.
+
+           Then "My Applications", the filter every Odoo app has on records
+           that belong to someone. uid is the logged-in user's id, available
+           in any domain written in a view:
+
+               domain="[('user_id', '=', uid)]"
+
+           And Archived. It filters on active rather than state, and the value
+           is the Python False, not the text "false":
+
+               domain="[('active', '=', False)]"
+
+           Put a <separator/> between each kind of filter. Filters in the same
+           block are combined with OR, and a separator starts a new block,
+           combined with AND. Without them, selecting Draft and My
+           Applications would show records that are either, rather than both.
+
+        3. Group By options, which set a context instead of a domain. Wrap
+           them in a plain group so they land in their own column of the
+           dropdown:
+
+               <group>
+                   <filter name="group_by_state" string="Status"
+                           context="{'group_by': 'state'}"/>
+               </group>
+
+           Add one for state, one for user_id (Salesperson) and one for
+           partner_id (Customer). Give every filter its own name: duplicates
+           confuse Odoo about which one is active.
+    -->
+
+    <!--
+        TODO (assignment 3.04): the "Assign to Me" server action.
+
+        id loan_application_action_assign_to_me, model ir.actions.server,
+        with these fields:
+
+            name                "Assign to Me", the label in the Actions menu
+            model_id            ref="model_loan_application", the model the
+                                code runs on
+            binding_model_id    ref="model_loan_application" again. This is
+                                what puts the action in the Actions menu at
+                                all; without it the action exists but nothing
+                                shows it.
+            binding_view_types  list, so it appears when records are selected
+                                in the list view and not on the form
+            state               code, meaning the action runs Python
+            code                records.action_assign_to_me()
+
+        records is the selection the user made, however many records that is.
+        The method does the work, the action only calls it: logic kept in the
+        model can be tested and reused, logic typed into a code field cannot.
+
+        No view change is needed. Odoo adds an action with a binding_model_id
+        to the Actions menu by itself.
+    -->
+
+</odoo>

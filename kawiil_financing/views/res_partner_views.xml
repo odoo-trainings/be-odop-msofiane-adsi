@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Assignment 4.01: the smart button on the contact form.
+
+        Nothing in this file loads until you register it in the manifest at
+        4.01, together with models/res_partner.py. The button below calls a
+        method and shows a field that only exist once that file is imported.
+    -->
+
+    <!-- Worked example: the inheritance itself. An inheriting view does not
+         copy the original. inherit_id names the view to change, and the arch
+         only holds the changes, each one located with an xpath.
+
+         The button box is an empty div in the standard partner form, left
+         there for modules to fill. position="inside" appends to it without
+         disturbing whatever another module has already put there. -->
+    <record id="view_partner_form_inherit_kawiil_financing" model="ir.ui.view">
+        <field name="name">res.partner.view.form.inherit.kawiil_financing</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <!--
+                    TODO: the smart button.
+
+                    A <button> with type="object" and name= set to
+                    action_view_loan_applications, so clicking it runs your
+                    Python method rather than an action record.
+
+                    Give it class="oe_stat_button": that class is what makes
+                    it a smart button rather than an ordinary one.
+                    icon="fa-money" for the picture.
+
+                    Inside the button, render loan_application_count with
+                    widget="statinfo", the widget that draws a number above
+                    its label. The field's own label is long for a small
+                    button, so give the field string="Loans" here; core does
+                    the same with string="Sales" on sale_order_count.
+                -->
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

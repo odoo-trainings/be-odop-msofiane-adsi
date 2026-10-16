@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Assignment 2.06: the menu hierarchy.
+
+        Three levels, each one the parent of the next:
+
+            Financing                  the app, on the main dashboard
+            Motorcycle Financing       a heading in the app's top bar
+            Loan Applications          the item that opens your action
+
+        The root is written out for you. Add the other two where marked TODO.
+
+        A menuitem with no action is just a container. Only the deepest one
+        carries an action, and clicking it is what opens the list.
+    -->
+
+    <!-- Worked example. No parent, so this sits at the top of the tree and
+         becomes an app in its own right. web_icon points at the icon you
+         added in assignment 2.01, in the form "module,path/inside/module".
+         The icon in the manifest folder only shows in the Apps list; the
+         dashboard takes its icon from here. -->
+    <menuitem id="kawiil_financing_menu_root"
+              name="Financing"
+              web_icon="kawiil_financing,static/description/icon.png"
+              sequence="10"/>
+
+    <!--
+        ! Assignment 2.07: leave this commented until you reach 2.07.
+        ! It replaces the root menuitem above; delete that one then.
+        ! groups limits who sees a menu at all, and the items under it go with
+        ! it. Once the groups exist, only Financing users get the app.
+
+    <menuitem id="kawiil_financing_menu_root"
+              name="Financing"
+              web_icon="kawiil_financing,static/description/icon.png"
+              groups="group_kawiil_financing_user"
+              sequence="10"/>
+    -->
+
+    <!--
+        TODO: id kawiil_financing_menu_motorcycle, name "Motorcycle
+        Financing", with parent="kawiil_financing_menu_root". Give it a
+        sequence so you control where it sits among its siblings later on.
+    -->
+
+    <!--
+        TODO: id loan_application_menu, name "Loan Applications", with parent
+        set to the menu above and action="loan_application_action".
+
+        The action lives in loan_application_views.xml. For this reference to
+        resolve, that file has to be listed above this one in the manifest.
+    -->
+
+    <!-- Assignment 2.09: worked example. Uncomment the menuitem below when
+         you reach 2.09, once the two Configuration actions it parents exist.
+         The groups attribute limits who can see a menu at all. Anyone not in
+         the Financing Admin group never gets it rendered, so a regular user
+         gets no hint the configuration screens exist. -->
+    <!--
+    <menuitem id="kawiil_financing_menu_config"
+              name="Configuration"
+              parent="kawiil_financing_menu_root"
+              groups="group_kawiil_financing_admin"
+              sequence="90"/>
+    -->
+
+    <!--
+        TODO (assignment 2.09): two items under Configuration, one per action.
+
+            id loan_application_tag_menu, "Tags",
+                action loan_application_tag_action
+            id loan_application_document_type_menu, "Document Types",
+                action loan_application_document_type_action
+
+        They inherit the parent's groups restriction, so you do not repeat it.
+    -->
+
+</odoo>

@@ -1,0 +1,7 @@
+# VS Code
+.vscode/
+*.code-workspace
+
+# Python and lint caches
+__pycache__/
+.ruff_cache/
