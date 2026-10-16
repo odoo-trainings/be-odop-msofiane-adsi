@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Assignment 3.07: the loan reference sequence.
+
+    noupdate="1" on the root: Odoo creates the records in this file on
+    install and leaves them alone on every update after. A sequence keeps its
+    next number in the database, and an update resetting it would hand out
+    references that already exist.
+-->
+<odoo noupdate="1">
+
+    <!--
+        TODO: id seq_loan_application, model ir.sequence, with these fields:
+
+            name     "Loan Application", the label in Settings > Technical >
+                     Sequences
+            code     loan.application. This is the key next_by_code() looks
+                     the sequence up by in your create() override, so the two
+                     must match exactly.
+            prefix   LOAN/%(year)s/. %(year)s is replaced by the current year
+                     each time a number is drawn. Only the prefix changes, the
+                     counter keeps going: LOAN/2026/041 is followed by
+                     LOAN/2027/042 in January, not LOAN/2027/001.
+            padding  3, the number of digits, zero-filled: 001, not 1.
+
+        Register this file in the manifest after the security files and
+        before the views.
+    -->
+
+</odoo>

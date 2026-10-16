@@ -1,0 +1,58 @@
+name: Quality Gate
+
+on:
+  pull_request:
+    branches: [production]
+    types: [opened, synchronize, reopened]
+
+jobs:
+  grade:
+    # Correctness autograder. The grading logic now lives in the reusable
+    # odoo-trainings/odop-grader composite action; this job just checks out the
+    # student's PR head and hands it to the action. The template never grades
+    # itself.
+    if: github.repository != 'odoo-trainings/odop-template'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      # The student's module at the exact PR head commit -> this is what we grade.
+      - name: Checkout PR head (student module)
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          # The full history, for the commit message check.
+          fetch-depth: 0
+      - name: Grade submission
+        # The action derives the spec from the source branch (chapter-<n>),
+        # runs the checks, posts the sticky comment, and fails on a missed gate.
+        uses: odoo-trainings/odop-grader@v1
+        with:
+          # "true" also enforces the branch name (20.0-chapter-<n>-<login>),
+          # the commit message format and the kawiil_base submodule.
+          check-conventions: "false"
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      # Odoo's checkers ship in test_lint. raise-unlink-override also needs the
+      # odoo package itself, to tell that a class is a model.
+      - name: Odoo source for pylint
+        uses: actions/checkout@v5
+        with:
+          repository: odoo/odoo
+          ref: "20.0"
+          path: .ci/odoo
+          sparse-checkout: odoo
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements-dev.txt
+      - name: ruff
+        run: ruff check --extend-exclude kawiil_base,.ci .
+      - name: pylint
+        env:
+          PYTHONPATH: .ci/odoo:.ci/odoo/odoo/addons/test_lint/tests
+        run: git ls-files -z '*.py' | xargs -0 -r pylint --rcfile=.pylintrc

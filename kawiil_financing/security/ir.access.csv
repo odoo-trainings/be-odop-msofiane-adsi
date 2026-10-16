@@ -1,0 +1,4 @@
+id,name,active,model_id:id,group_id:id,operation,domain,note
+access_loan_application_user_read,loan.application.user.read,True,model_loan_application,group_kawiil_financing_user,r,,"Users see every application, approved ones included."
+access_loan_application_user_edit,loan.application.user.edit,True,model_loan_application,group_kawiil_financing_user,cu,"[('state', '!=', 'approved')]","Users create and change applications until they are approved. From then on only admins can change them, and users can never delete one."
+access_loan_application_admin,loan.application.admin,True,model_loan_application,group_kawiil_financing_admin,crud,,"Admins have full access, approved applications included."
